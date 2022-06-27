@@ -1,0 +1,9 @@
+
+views/Ordonnances/Orodnnance/Ordonnance.js:106 : pas de photo de profil    PAS COMPRIS
+
+
+
+ 
+--- A faire plus tard (liste non exhaustive) ---
+Statistiques : prendre en compte les vraies données
+Notifications
