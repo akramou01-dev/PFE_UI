@@ -9,7 +9,7 @@ const navigationConfig = [
   },
   {
     id: 1,
-    title: "Algorithms Drop Box",
+    title: "Algorithms",
     type: "item",
     // vu_ens: true,
     icon: <FaTable size={20} />,
@@ -21,7 +21,7 @@ const navigationConfig = [
   },
   {
     id: 2,
-    title: "Datasets Drop Box",
+    title: "Datasets",
     type: "item",
     // vu_ens: true,
     icon: <FaTable size={20} />,
@@ -29,12 +29,20 @@ const navigationConfig = [
   },
   {
     id: 3,
-    title: "SCOS configurations",
-    type: "item",
+    title: "Config Panel",
+    type: "panel",
     // vu_ens: true,
     icon: <FaTable size={20} />,
     navLink: "/",
   },
+    // {
+    //   id: 3,
+    //   title: "SCOS configurations",
+    //   type: "item",
+    //   // vu_ens: true,
+    //   icon: <FaTable size={20} />,
+    //   navLink: "/",
+    // },
   // {
   //   id: "stats",
   //   title: "Statistiques détaillés",

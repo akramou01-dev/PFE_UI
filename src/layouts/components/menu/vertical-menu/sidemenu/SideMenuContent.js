@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import classnames from "classnames";
 import navigationConfig from "../../../../../configs/navigationConfig";
 import SideMenuGroup from "./SideMenuGroup";
-import { Badge } from "reactstrap";
+import { Badge,  ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem, CustomInput, CardBody,  CardText, Label } from "reactstrap";
 import { ChevronRight } from "react-feather";
 import { FormattedMessage } from "react-intl";
 import { history } from "../../../../../history";
+import {   ChevronDown } from "react-feather"
 
 class SideMenuContent extends React.Component {
   constructor(props) {
@@ -24,6 +25,7 @@ class SideMenuContent extends React.Component {
     activeGroups: [],
     currentActiveGroup: [],
     tempArr: [],
+    dropdownOpen: false
   };
 
   handleGroupClick = (id, parent = null, type = "") => {
@@ -120,6 +122,12 @@ class SideMenuContent extends React.Component {
     }
   }
 
+  toggleDropdown = ()=>{
+    this.setState({
+      dropdownOpen :  !this.state.dropdownOpen
+    })
+  }
+
   render() {
     // Loop over sidebar items
     // eslint-disable-next-line
@@ -163,13 +171,13 @@ class SideMenuContent extends React.Component {
               if (this.props.deviceWidth <= 1200 && item.type === "item") {
                 this.props.toggleMenu();
               }
-              this.props.test()
+              // this.props.handleDatasetChange(e)
             } else {
               this.handleGroupClick(item.id, null, item.type);
             }
           }}
         >
-          <CustomAnchorTag
+          {/* <CustomAnchorTag
             to={
               item.filterBase
                 ? item.filterBase
@@ -217,7 +225,99 @@ class SideMenuContent extends React.Component {
             ) : (
               ""
             )}
-          </CustomAnchorTag>
+          </CustomAnchorTag> */}
+
+
+
+            {item.type=="item" ? 
+              item.title=="Algorithms" ?
+            <CustomInput
+              className='form-control ml-50 pr-3'
+              type='select'
+              id='rows-per-page'
+              value={this.props.algorithm}
+              onChange= {(e)=> this.props.handleAlgoChange(e.target.value)}>              
+              <option value='SCOS'>SCOS</option>
+              <option value='USAD'>USAD</option>
+              <option value='CNN_Outlier'>CNN Outlier</option>
+            </CustomInput> 
+            : 
+            <CustomInput
+              className='form-control ml-50 pr-3'
+              type='select'
+              id='rows-per-page'
+              value={this.props.dataset}
+              onChange= {(e)=> this.props.handleDatasetChange(e.target.value)}>              
+              <option value='SMAP'>SMAP</option>
+              <option value='MSLF7'>MSLF7</option>
+              <option value='ECG'>ECG</option>
+              <option value='MSLC1'>MSLC1</option>
+              <option value='Genesis'>Genesis</option>
+              <option value='HSS'>HSS</option>
+            </CustomInput> 
+            
+            :  this.props.algorithm=="SCOS" ? 
+            <CardBody>
+            <div className='demo-inline-spacing'>
+              <CustomInput type='radio' id='convex' name='convex_radio' inline label='Convex'  onChange={this.props.handleRadioConvex} />
+              <CustomInput type='radio' id='non-convex' name='convex_radio' inline label='Non-Convex' onChange={this.props.handleRadioNonConvex}  defaultChecked />
+            </div>
+            <div className='demo-inline-spacing'>
+              <CustomInput type='radio' id='win' name='win_radio' inline label='Windows' onChange={this.props.handleRadioWin} defaultChecked />
+              <CustomInput type='radio' id='non_win' name='win_radio' inline label='Non-Windows' onChange={this.props.handleRadioNonWin} />
+            </div>
+            <div className='demo-inline-spacing'>
+              <CustomInput type='radio' id='K' name='temp_radio' inline label='K' onChange={this.props.handleRadioK}  />
+              <CustomInput type='radio' id='TD' name='temp_radio' inline label='TD'  onChange={this.props.handleRadioTD}   defaultChecked />
+            </div>
+          </CardBody>
+            
+            :""
+            
+            }
+
+
+
+{/* 
+            <ButtonDropdown 
+            isOpen={this.state.dropdownOpen} 
+            toggle={this.toggleDropdown}
+            >
+              <DropdownToggle 
+              color='primary' 
+              caret
+              >
+                Controlled
+              
+              </DropdownToggle>
+              
+              <DropdownMenu
+                >
+                <DropdownItem
+                value="test" 
+                href='#' 
+                tag='a'
+                onChange={(e)=>{
+                  console.log(e.target.value)
+                }}
+                >Option 1</DropdownItem>
+                
+                <DropdownItem href='#' tag='a'>
+                  Option 2
+                </DropdownItem>
+                <DropdownItem href='#' tag='a'>Option 3</DropdownItem>
+              </DropdownMenu>
+            </ButtonDropdown> */}
+
+
+
+
+
+
+
+
+
+
 
 
           {/* {item.type === "collapse" ? (
@@ -244,8 +344,6 @@ class SideMenuContent extends React.Component {
           ) : (
             ""
           )} */}
-
-          Drop box  {item.title}
 
 
 

@@ -206,7 +206,16 @@ class Sidebar extends Component {
                         collapsedMenuPaths={collapsedMenuPaths}
                         toggleMenu={sidebarVisibility}
                         deviceWidth={this.props.deviceWidth}
-                        test = {this.props.test}
+                        handleDatasetChange = {this.props.handleDatasetChange}
+                        handleAlgoChange = {this.props.handleAlgoChange}
+                        algorithm = {this.props.algorithm}
+                        dataset = {this.props.dataset}
+                        handleRadioConvex = {this.props.handleRadioConvex}
+                        handleRadioNonConvex = {this.props.handleRadioNonConvex}
+                        handleRadioNonWin = {this.props.handleRadioNonWin}
+                        handleRadioWin = {this.props.handleRadioWin}
+                        handleRadioK = {this.props.handleRadioK}
+                        handleRadioTD = {this.props.handleRadioTD}
                       />
                     </ul>
                   </Hammer>

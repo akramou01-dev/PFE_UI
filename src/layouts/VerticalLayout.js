@@ -7,7 +7,7 @@ import Footer from "./components/footer/Footer";
 import { Row, Col } from "reactstrap";
 import { connect } from "react-redux";
 
-import { Input, Button } from "reactstrap";
+import { Input, Button, CustomInput } from "reactstrap";
 
 import { Truck, User, FileText, DollarSign, Eye } from "react-feather";
 
@@ -33,13 +33,20 @@ class VerticalLayout extends PureComponent {
     customizer: false,
     currRoute: this.props.location.pathname,
     algorithm: "USAD",
+    algorithms: ["USAD",'2D-CNN','SCOS'],
     dataset: "SMAP",
-    scos_config: {
+    datasets: ["SMAP",'ECG','MSLF7',"MSLC1","Genesis","HSS"],
+    scos_params: {
       beta: "",
       lambda: "",
       decay: "",
       w: "",
     },
+    scos_config : {
+      convex:false, 
+      temp_depend :'TD', 
+      win : true,
+    }
   };
   collapsedPaths = [];
   mounted = false;
@@ -152,6 +159,58 @@ class VerticalLayout extends PureComponent {
     });
   };
 
+
+  handleRadioConvex = ()=> {
+    this.setState({
+      scos_config:{
+        ...this.state.scos_config, 
+        convex : true
+      }
+    })
+  }
+  handleRadioNonConvex = ()=> {
+    this.setState({
+      scos_config:{
+        ...this.state.scos_config, 
+        convex : false
+      }
+    })
+  }
+
+  handleRadioWin = ()=> {
+    this.setState({
+      scos_config:{
+        ...this.state.scos_config, 
+        win : true
+      }
+    })
+  }
+  handleRadioNonWin = ()=> {
+    this.setState({
+      scos_config:{
+        ...this.state.scos_config, 
+        win : false
+      }
+    })
+  }
+  handleRadioK = ()=> {
+    this.setState({
+      scos_config:{
+        ...this.state.scos_config, 
+        temp_depend : "K"
+      }
+    })
+  }
+  handleRadioTD = ()=> {
+    this.setState({
+      scos_config:{
+        ...this.state.scos_config, 
+        temp_depend : "K"
+      }
+    })
+  }
+
+
   sidebarMenuHover = (val) => {
     this.setState({
       sidebarState: val,
@@ -197,12 +256,15 @@ class VerticalLayout extends PureComponent {
     }
   };
 
-  test = (e) => {
+  handleAlgoChange = (value) => {
     this.setState({
-      algorithm: "SCOS",
-      dataset: "ECG",
+      algorithm: value,
     });
-    console.log(this.state.algorithm);
+  };
+  handleDatasetChange = (value) => {
+    this.setState({
+      dataset: value,
+    });
   };
 
   handleAppOverlayClick = () => {
@@ -235,7 +297,16 @@ class VerticalLayout extends PureComponent {
       collapsed: this.state.collapsedContent,
       permission: this.props.permission,
       deviceWidth: this.state.width,
-      test: this.test,
+      handleAlgoChange: this.handleAlgoChange,
+      handleDatasetChange: this.handleDatasetChange,
+      algorithm : this.state.algorithm,
+      dataset : this.state.dataset,
+      handleRadioConvex : this.handleRadioConvex,
+      handleRadioNonConvex : this.handleRadioNonConvex,
+      handleRadioNonWin : this.handleRadioNonWin,
+      handleRadioWin : this.handleRadioWin,
+      handleRadioK : this.handleRadioK,
+      handleRadioTD : this.handleRadioTD,
     };
     let navbarProps = {
       toggleSidebarMenu: this.toggleSidebarMenu,
@@ -306,7 +377,7 @@ class VerticalLayout extends PureComponent {
                 style={{
                   backgroundColor: "#ffc4ad",
                   borderRadius: "15px",
-                  width: "80%",
+                  width: "90%",
                   marginRight: "1rem",
                   height: "15rem",
                   padding: "2rem",
@@ -335,8 +406,38 @@ class VerticalLayout extends PureComponent {
                                   fontSize: "14px",
                                 }}
                               >
-                                Algorithm : {this.state.algorithm}
+                                Algorithm : {this.state.algorithm} 
                               </h5>
+                              {this.state.algorithm=="SCOS" ? 
+                              <div>
+                              <h6
+                                style={{
+                                  marginBottom: "0.2rem",
+                                  fontSize: "10px",
+                                }}
+                              >
+                                Convex : {this.state.scos_config.convex==false ? "No": 'Yes'}
+                              </h6> 
+                              <h6
+                                style={{
+                                  marginBottom: "0.2rem",
+                                  fontSize: "10px",
+                                }}
+                              >
+                                Windows : {this.state.scos_config.win==false ? "No": 'Yes'}
+                              </h6> 
+                              <h6
+                                style={{
+                                  marginBottom: "0.2rem",
+                                  fontSize: "10px",
+                                }}
+                              >
+                                Temporal Dependency : {this.state.scos_config.temp_depend}
+                              </h6> 
+                              </div>
+                              
+                              : ""
+                            }
                               <h5
                                 style={{
                                   marginTop: "0.5rem",
@@ -363,27 +464,14 @@ class VerticalLayout extends PureComponent {
                       >
                         <Col>
                           <div className="align-self-center">
-                            <div>
-                              <h5
-                                style={{
-                                  marginTop: "0.5rem",
-                                  marginBottom: "1rem",
-                                  fontSize: "14px",
-                                }}
-                              >
-                                Find threshold (radio button)
-                              </h5>
-
-                              <h5
-                                style={{
-                                  marginTop: "0.5rem",
-                                  marginBottom: "1rem",
-                                  fontSize: "14px",
-                                }}
-                              >
-                                Split dataset (radio button)
-                              </h5>
-                            </div>
+                                <CustomInput 
+                                type='checkbox' 
+                                id='portion' 
+                                name='portion' inline label='Portion Dataset' />
+                                <CustomInput 
+                                type='checkbox' 
+                                id='threshold' 
+                                name='threshold' inline label='Find Threshold' />
                           </div>
                         </Col>
                       </div>
@@ -424,11 +512,11 @@ class VerticalLayout extends PureComponent {
                             width: "5rem",
                             height: "2rem",
                           }}
-                          value={this.state.scos_config.beta}
+                          value={this.state.scos_params.beta}
                           onChange={(e) => {
                             this.setState({
-                              scos_config: {
-                                ...this.state.scos_config,
+                              scos_params: {
+                                ...this.state.scos_params,
                                 beta: e.target.value
                               },
                             });
@@ -449,8 +537,8 @@ class VerticalLayout extends PureComponent {
                           value={this.state.lambda}
                           onChange={(e) => {
                             this.setState({
-                              scos_config: {
-                                ...this.state.scos_config,
+                              scos_params: {
+                                ...this.state.scos_params,
                                 lambda: e.target.value,
                               }
                             });
@@ -468,11 +556,13 @@ class VerticalLayout extends PureComponent {
                             width: "5rem",
                             height: "2rem",
                           }}
-                          value={this.state.scos_config.decay}
+                          value={this.state.scos_params.decay}
                           onChange={(e) => {
                             this.setState({
-                              ...this.state.scos_config,
-                              decay: e.target.value,
+                              scos_params : {
+                                ...this.state.scos_params,
+                                decay: e.target.value,
+                              }
                             });
                           }}
                           disabled={this.state.algorithm != "SCOS"}
@@ -488,11 +578,13 @@ class VerticalLayout extends PureComponent {
                             width: "5rem",
                             height: "2rem",
                           }}
-                          value={this.state.scos_config.pul}
+                          value={this.state.scos_params.pul}
                           onChange={(e) => {
                             this.setState({
-                              ...this.state.scos_config,
-                              pul: e.target.value,
+                              scos_params: {
+                                ...this.state.scos_params,
+                                pul: e.target.value,
+                              }
                             });
                           }}
                           disabled={this.state.algorithm != "SCOS"}
