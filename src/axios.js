@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://ordo.pharmayou.fr:3003/",
+  baseURL: "http://localhost:5000/",
 });
 
 export default instance;

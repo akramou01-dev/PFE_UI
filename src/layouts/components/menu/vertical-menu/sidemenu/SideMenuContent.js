@@ -239,7 +239,7 @@ class SideMenuContent extends React.Component {
               onChange= {(e)=> this.props.handleAlgoChange(e.target.value)}>              
               <option value='SCOS'>SCOS</option>
               <option value='USAD'>USAD</option>
-              <option value='CNN_Outlier'>CNN Outlier</option>
+              <option value='CNN Outlier'>CNN Outlier</option>
             </CustomInput> 
             : 
             <CustomInput

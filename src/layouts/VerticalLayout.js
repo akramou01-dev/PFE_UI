@@ -5,7 +5,18 @@ import Sidebar from "./components/menu/vertical-menu/Sidebar";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
 import { Row, Col } from "reactstrap";
+import axios from "../axios"
 import { connect } from "react-redux";
+
+import GenesisFile from   './Genesis_labels.csv'
+import ECGFile from   './ECG_labels.csv'
+
+import Papa from 'papaparse';
+
+
+
+import LineChart from   '../views/charts/chart-js/ChartJsLineChart'
+
 
 import { Input, Button, CustomInput } from "reactstrap";
 
@@ -20,6 +31,41 @@ import {
   changeMenuColor,
   hideScrollToTop,
 } from "../redux/actions/customizer/index";
+
+
+const Xs = []
+for (let i = 0; i < 1500; i++) {
+  Xs.push(i);
+}
+
+const real_labels = []
+for (let i = 0; i < 1500; i++) {
+  if ((i>400 && i < 520) ||  (i> 1200 && i < 1280) ){
+    real_labels.push(1);
+  } else {
+    real_labels.push(0);
+  }
+}
+
+const Genesis_labels = []
+
+Papa.parse(GenesisFile, {
+  download: true,
+  complete: function (input) {
+   Genesis_labels.push(input.data)   
+  }
+});
+const ECG_labels = []
+
+Papa.parse(ECGFile, {
+  download: true,
+  complete: function (input) {
+   ECG_labels.push(input.data)   
+  }
+});
+
+
+
 
 class VerticalLayout extends PureComponent {
   state = {
@@ -41,13 +87,161 @@ class VerticalLayout extends PureComponent {
       lambda: "",
       decay: "",
       w: "",
+      th_pa: "",
+      th_pw: "",  
     },
     scos_config : {
       convex:false, 
       temp_depend :'TD', 
       win : true,
-    }
+    },
+    find_threshold : false,
+    labelColor : '#6e6b7b',
+    
+    tooltipShadow : 'rgba(0, 0, 0, 0.25)',
+    
+    gridLineColor : 'rgba(200, 200, 200, 0.2)',
+    
+    lineChartPrimary : '#666ee8',
+    
+    lineChartDanger : '#ff4961',
+    
+    warningColorShade : '#ffe802',
+
+    fetch_data  : false,
+
+
+    labels : {
+      Genesis : Genesis_labels,
+      ECG: ECG_labels
+    },
+
+    data : {
+      labels: Xs,
+      datasets: [
+        {
+          data: real_labels,
+          label: 'Real Targets',
+          borderColor: "#666ee8",
+          lineTension: 0,
+          pointStyle: 'circle',
+          backgroundColor: "#666ee8",
+          fill: false,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBorderWidth: 5,
+          pointBorderColor: 'transparent',
+          pointHoverBorderColor: '#fff',
+          pointHoverBackgroundColor: "#666ee8",
+          pointShadowOffsetX: 1,
+          pointShadowOffsetY: 1,
+          pointShadowBlur: 5,
+          pointShadowColor: 'rgba(0, 0, 0, 0.25)'
+        },
+      ]
+    },
+  
+    data1 : {
+      labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+      datasets: [
+        {
+          data: [1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+          label: 'Real Targets',
+          borderColor: "#666ee8",
+          lineTension: 0,
+          pointStyle: 'circle',
+          backgroundColor: "#666ee8",
+          fill: false,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBorderWidth: 5,
+          pointBorderColor: 'transparent',
+          pointHoverBorderColor: '#fff',
+          pointHoverBackgroundColor: "#666ee8",
+          pointShadowOffsetX: 1,
+          pointShadowOffsetY: 1,
+          pointShadowBlur: 5,
+          pointShadowColor: 'rgba(0, 0, 0, 0.25)'
+        },
+        {
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+          label: 'Predicted Targets PW',
+          borderColor: '#ff4961',
+          lineTension: 0,
+          pointStyle: 'circle',
+          backgroundColor: '#ff4961',
+          fill: false,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBorderWidth: 5,
+          pointBorderColor: 'transparent',
+          pointHoverBorderColor: '#fff',
+          pointHoverBackgroundColor: '#ff4961',
+          pointShadowOffsetX: 1,
+          pointShadowOffsetY: 1,
+          pointShadowBlur: 5,
+          pointShadowColor: 'rgba(0, 0, 0, 0.25)'
+        },
+      ]
+    },
+  
+    data2 : {
+      labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+      datasets: [
+        {
+          data: [1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+          label: 'Real Targets',
+          borderColor: "#666ee8",
+          lineTension: 0,
+          pointStyle: 'circle',
+          backgroundColor: "#666ee8",
+          fill: false,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBorderWidth: 5,
+          pointBorderColor: 'transparent',
+          pointHoverBorderColor: '#fff',
+          pointHoverBackgroundColor: "#666ee8",
+          pointShadowOffsetX: 1,
+          pointShadowOffsetY: 1,
+          pointShadowBlur: 5,
+          pointShadowColor: 'rgba(0, 0, 0, 0.25)'
+        },
+        {
+          data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          label: 'Predicted Targets PA',
+          borderColor: '#ff4961',
+          lineTension: 0,
+          pointStyle: 'circle',
+          backgroundColor: '#ff4961',
+          fill: false,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBorderWidth: 5,
+          pointBorderColor: 'transparent',
+          pointHoverBorderColor: '#fff',
+          pointHoverBackgroundColor: '#ff4961',
+          pointShadowOffsetX: 1,
+          pointShadowOffsetY: 1,
+          pointShadowBlur: 5,
+          pointShadowColor: 'rgba(0, 0, 0, 0.25)'
+        },
+      ]
+    },
+    
+    errorAlert :false , 
+    errorText : "Network problem",
+
+
   };
+
+  handleAlert = (state, value, text) => {
+    this.setState({ [state]: value, errorText: text });
+  };
+  
+
+
+
   collapsedPaths = [];
   mounted = false;
   updateWidth = () => {
@@ -205,7 +399,7 @@ class VerticalLayout extends PureComponent {
     this.setState({
       scos_config:{
         ...this.state.scos_config, 
-        temp_depend : "K"
+        temp_depend : "TD"
       }
     })
   }
@@ -262,7 +456,23 @@ class VerticalLayout extends PureComponent {
     });
   };
   handleDatasetChange = (value) => {
+
+    const Xs = []
+    console.log(this.state.labels[value][0].length)
+    for (let i = 0; i < this.state.labels[value][0].length; i++) {
+      Xs.push(i);
+    }
+
     this.setState({
+      data : {
+        labels : Xs,
+        datasets : [
+          {
+            ...this.state.data.datasets[0],
+            data : this.state.labels[value]
+          }
+        ]
+      },
       dataset: value,
     });
   };
@@ -272,8 +482,65 @@ class VerticalLayout extends PureComponent {
       appOverlay: false,
     });
   };
+  handleFindTH = () => {
+    this.setState({
+      find_threshold: ! this.state.find_threshold,
+    });
+  };
+
+
+
+  fetchData = async () =>{
+    try {
+      const response = await axios.get(`/`);
+      const results_pa  = response.data.results_pa
+      const results_pw  = response.data.results_pw
+      var Xs = [];
+      for (var i = 0; i <= results_pa.length ; i++) {
+        Xs.push(i);
+      }
+
+      this.setState({
+        data1 : {
+          labels : Xs,
+          datasets  : [
+            {
+              ...this.state.data1.datasets[0],
+              data : real_labels 
+            },
+            {
+              ...this.state.data1.datasets[1],
+              data : results_pw 
+            }
+          ] 
+        },
+        data2 : {
+          labels : Xs,
+          datasets  : [
+            {
+              ...this.state.data2.datasets[0],
+              data : real_labels
+            },
+            {
+              ...this.state.data2.datasets[1],
+              data : results_pa
+            }
+          ] 
+        },
+        fetch_data: true,
+      })
+
+    } catch (err) {
+      const error_message =
+        err.message === "Network Error"
+          ? "Une erreur s'est produite."
+          : "Vérifiez votre connexion !";
+      this.handleAlert("errorAlert", true, error_message);
+    }
+  }
 
   render() {
+    console.log(this.state.data)
     let appProps = this.props.app.customizer;
     let menuThemeArr = [
       "primary",
@@ -367,7 +634,7 @@ class VerticalLayout extends PureComponent {
           })}
           onClick={this.handleAppOverlayClick}
         >
-          <Navbar {...navbarProps} />
+          {/* <Navbar {...navbarProps} /> */}
           <div className="content-wrapper">
             {/* ADDED CODE */}
 
@@ -377,7 +644,7 @@ class VerticalLayout extends PureComponent {
                 style={{
                   backgroundColor: "#ffc4ad",
                   borderRadius: "15px",
-                  width: "90%",
+                  width: "100%",
                   marginRight: "1rem",
                   height: "15rem",
                   padding: "2rem",
@@ -410,30 +677,18 @@ class VerticalLayout extends PureComponent {
                               </h5>
                               {this.state.algorithm=="SCOS" ? 
                               <div>
-                              <h6
-                                style={{
-                                  marginBottom: "0.2rem",
-                                  fontSize: "10px",
-                                }}
-                              >
+                              <h7>
                                 Convex : {this.state.scos_config.convex==false ? "No": 'Yes'}
-                              </h6> 
-                              <h6
-                                style={{
-                                  marginBottom: "0.2rem",
-                                  fontSize: "10px",
-                                }}
-                              >
+                              </h7> 
+                              <br></br>
+                              <h7>
                                 Windows : {this.state.scos_config.win==false ? "No": 'Yes'}
-                              </h6> 
-                              <h6
-                                style={{
-                                  marginBottom: "0.2rem",
-                                  fontSize: "10px",
-                                }}
+                              </h7> 
+                              <br></br>
+                              <h7
                               >
                                 Temporal Dependency : {this.state.scos_config.temp_depend}
-                              </h6> 
+                              </h7> 
                               </div>
                               
                               : ""
@@ -471,7 +726,9 @@ class VerticalLayout extends PureComponent {
                                 <CustomInput 
                                 type='checkbox' 
                                 id='threshold' 
-                                name='threshold' inline label='Find Threshold' />
+                                name='threshold' inline label='Find Threshold'
+                                onChange={this.handleFindTH}
+                                />
                           </div>
                         </Col>
                       </div>
@@ -591,6 +848,48 @@ class VerticalLayout extends PureComponent {
                         />
                       </div>
                     </div>
+                    <div className="d-flex flex-sm-row justify-content-between align-items-center">
+                      <div>
+                        <small>Threshold PA</small>
+                        <Input
+                          style={{
+                            width: "5rem",
+                            height: "2rem",
+                          }}
+                          value={this.state.scos_params.th_pa}
+                          onChange={(e) => {
+                            this.setState({
+                              scos_params: {
+                                ...this.state.scos_params,
+                                th_pa: e.target.value,
+                              }
+                            });
+                          }}
+                          disabled={this.state.algorithm != "SCOS"}
+                        />
+                      </div>
+                    </div>
+                    <div className="d-flex flex-sm-row justify-content-between align-items-center">
+                      <div>
+                        <small>Threshold PW</small>
+                        <Input
+                          style={{
+                            width: "5rem",
+                            height: "2rem",
+                          }}
+                          value={this.state.scos_params.th_pw}
+                          onChange={(e) => {
+                            this.setState({
+                              scos_params: {
+                                ...this.state.scos_params,
+                                th_pw: e.target.value,
+                              }
+                            });
+                          }}
+                          disabled={this.state.algorithm != "SCOS"}
+                        />
+                      </div>
+                    </div>
 
                     <div className="d-flex flex-sm-row justify-content-between align-items-center">
                       <div className="d-flex flex-sm-row justify-content-between align-items-center">
@@ -605,6 +904,7 @@ class VerticalLayout extends PureComponent {
                           }}
                           // size="8px"
                           color="primary"
+                          onClick={this.fetchData}
                         >
                           Submit
                         </Button>
@@ -613,11 +913,61 @@ class VerticalLayout extends PureComponent {
                   </div>
                 </div>
               </div>
+
+
+
             </Row>
 
+            {this.state.fetch_data ? 
+            <Row>
+            <Col xl="6"  sm="12">
+           <LineChart
+           title = 'Results Using PW'
+            data = {this.state.data1}
+            warningColorShade={this.state.warningColorShade}
+            lineChartDanger={this.state.lineChartDanger}
+            lineChartPrimary={this.state.lineChartPrimary}
+            labelColor={this.state.labelColor}
+            tooltipShadow={this.state.tooltipShadow}
+            gridLineColor={this.state.gridLineColor}
+          />  
+              </Col>
+              <Col xl="6"  sm="12">
+           <LineChart
+            title = 'Results Using PA'
+            data = {this.state.data2}
+            warningColorShade={this.state.warningColorShade}
+            lineChartDanger={this.state.lineChartDanger}
+            lineChartPrimary={this.state.lineChartPrimary}
+            labelColor={this.state.labelColor}
+            tooltipShadow={this.state.tooltipShadow}
+            gridLineColor={this.state.gridLineColor}
+            />  
+              </Col>
+            </Row>
+            :
+            <Row>
+              <Col xl="6"  sm="12">
+            <LineChart
+              title = 'Real targets'
+              data = {this.state.data}
+              warningColorShade={this.state.warningColorShade}
+              lineChartDanger={this.state.lineChartDanger}
+              lineChartPrimary={this.state.lineChartPrimary}
+              labelColor={this.state.labelColor}
+              tooltipShadow={this.state.tooltipShadow}
+              gridLineColor={this.state.gridLineColor}
+              />  
+              </Col>
+            </Row>
+            
+            }
+
+
+
             {/*  */}
-          </div>
-        </div>
+            </div>
+            </div>
 
         <Footer {...footerProps} />
         {appProps.disableCustomizer !== true ? (
