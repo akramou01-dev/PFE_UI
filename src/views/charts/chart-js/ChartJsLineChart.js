@@ -10,7 +10,8 @@ const ChartjsLineChart = ({
   lineChartDanger,
   lineChartPrimary,
   data,
-  title
+  title,
+  score
 }) => {
   const options = {
       responsive: true,
@@ -112,10 +113,12 @@ const ChartjsLineChart = ({
             <CardTitle className='mb-75' tag='h4'>
                 {title}
             </CardTitle>
+            {score? `F1-Score : ${score}` : "" }
+            
             </div>
         </CardHeader>
         <CardBody>
-            <div style={{ height: '450px', width:"650px" }}>
+            <div style={{ height: '450px', width:"100%" }}>
             <Line data={data} options={options} height={450} plugins={plugins} />
             </div>
         </CardBody>

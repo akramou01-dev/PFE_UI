@@ -9,7 +9,7 @@ import { FormattedMessage } from "react-intl";
 import { history } from "../../../../../history";
 import {   ChevronDown } from "react-feather"
 
-class SideMenuContent extends React.Component {
+class   SideMenuContent extends React.Component {
   constructor(props) {
     super(props);
 

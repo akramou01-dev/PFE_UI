@@ -10,6 +10,10 @@ import { connect } from "react-redux";
 
 import GenesisFile from   './Genesis_labels.csv'
 import ECGFile from   './ECG_labels.csv'
+import MSLF7File from   './MSLF7_labels.csv'
+import MSLC1File from   './MSLC1_labels.csv'
+import HSSFile from   './HSS_labels.csv'
+import SMAPFile from   './SMAP_labels.csv'
 
 import Papa from 'papaparse';
 
@@ -31,28 +35,47 @@ import {
   changeMenuColor,
   hideScrollToTop,
 } from "../redux/actions/customizer/index";
+import { data } from "jquery";
 
 
 const Xs = []
-for (let i = 0; i < 1500; i++) {
+for (let i = 0; i < 8028; i++) {
   Xs.push(i);
 }
 
+const SMAP_labels = []
+
+Papa.parse(SMAPFile, {
+  download: true,
+  complete: function (input) {
+    SMAP_labels.push(input.data)   
+  }
+});
+
 const real_labels = []
-for (let i = 0; i < 1500; i++) {
-  if ((i>400 && i < 520) ||  (i> 1200 && i < 1280) ){
+for (let i = 0; i < 8028; i++) {
+  if ((i >= 3650 && i <= 3750) ||  (i>= 5050 && i <=5100) ||  (i >= 7560 && i <= 7675)  ){
     real_labels.push(1);
   } else {
     real_labels.push(0);
   }
 }
 
+console.log(real_labels)
+console.log(Xs)
+
+
+// const Xs = []
+// for (let i = 0; i < SMAP_labels.length; i++) {
+//   Xs.push(i);
+// }
+
 const Genesis_labels = []
 
 Papa.parse(GenesisFile, {
   download: true,
   complete: function (input) {
-   Genesis_labels.push(input.data)   
+    Genesis_labels.push(input.data)   
   }
 });
 const ECG_labels = []
@@ -65,8 +88,35 @@ Papa.parse(ECGFile, {
 });
 
 
+const MSLC1_labels = []
+
+Papa.parse(MSLC1File, {
+  download: true,
+  complete: function (input) {
+    MSLC1_labels.push(input.data)   
+  }
+});
+const MSLF7_labels = []
+
+Papa.parse(MSLF7File, {
+  download: true,
+  complete: function (input) {
+    MSLF7_labels.push(input.data)   
+  }
+});
+const HSS_labels = []
+
+Papa.parse(HSSFile, {
+  download: true,
+  complete: function (input) {
+    HSS_labels.push(input.data)   
+  }
+});
 
 
+
+  
+const StartingDataset = SMAP_labels[0]
 class VerticalLayout extends PureComponent {
   state = {
     width: window.innerWidth,
@@ -113,7 +163,12 @@ class VerticalLayout extends PureComponent {
 
     labels : {
       Genesis : Genesis_labels,
-      ECG: ECG_labels
+      ECG: ECG_labels,
+      MSLF7 : MSLF7_labels, 
+      MSLC1 : MSLC1_labels, 
+      HSS : HSS_labels, 
+      SMAP : SMAP_labels, 
+
     },
 
     data : {
@@ -231,6 +286,9 @@ class VerticalLayout extends PureComponent {
     
     errorAlert :false , 
     errorText : "Network problem",
+
+    f1_pa: null, 
+    f1_pw:null
 
 
   };
@@ -456,7 +514,7 @@ class VerticalLayout extends PureComponent {
     });
   };
   handleDatasetChange = (value) => {
-
+    console.log(this.state.labels.Genesis[0].length)
     const Xs = []
     console.log(this.state.labels[value][0].length)
     for (let i = 0; i < this.state.labels[value][0].length; i++) {
@@ -469,7 +527,7 @@ class VerticalLayout extends PureComponent {
         datasets : [
           {
             ...this.state.data.datasets[0],
-            data : this.state.labels[value]
+            data : this.state.labels[value][0]
           }
         ]
       },
@@ -490,27 +548,62 @@ class VerticalLayout extends PureComponent {
 
 
 
-  fetchData = async () =>{
+  handleSubmit = async () =>{
     try {
-      const response = await axios.get(`/`);
-      const results_pa  = response.data.results_pa
-      const results_pw  = response.data.results_pw
+      let response = null
+      if (this.state.algorithm=="USAD"){
+        response = await axios.post(`/usad`, {
+          dataset_name : this.state.dataset,
+          find_threshold: this.state.find_threshold
+        });
+      }else if (this.state.algorithm=="CNN Outlier"){
+        response = await axios.post(`/cnn`,{
+          dataset_name : this.state.dataset,
+          find_threshold: this.state.find_threshold
+        });
+      } else {
+        response = await axios.post(`/scos`, {
+          config: {
+            dataset_name : this.state.dataset, 
+            dependence : this.state.scos_config.temp_depend, 
+            convex:  this.state.scos_config.convex ? "convex" : "non-convex"
+          }, 
+          params : {}, 
+          find_threshold : this.state.find_threshold
+        });
+      }
+
+      
+      const {
+        f1_pa,
+        prec_pa,
+        rec_pa,
+        f1_pw,
+        prec_pw,
+        rec_pw,
+        new_threshold_pa, 
+        new_threshold_pw,
+        y_pred,
+        y_pred_adjusted
+      } = response.data
+      
       var Xs = [];
-      for (var i = 0; i <= results_pa.length ; i++) {
+      for (var i = 0; i <= y_pred.length ; i++) {
         Xs.push(i);
       }
 
       this.setState({
+        ...this.state,
         data1 : {
           labels : Xs,
           datasets  : [
             {
               ...this.state.data1.datasets[0],
-              data : real_labels 
+              data : this.state.labels[this.state.dataset] [0]
             },
             {
               ...this.state.data1.datasets[1],
-              data : results_pw 
+              data : y_pred 
             }
           ] 
         },
@@ -519,14 +612,16 @@ class VerticalLayout extends PureComponent {
           datasets  : [
             {
               ...this.state.data2.datasets[0],
-              data : real_labels
+              data : this.state.labels[this.state.dataset][0]
             },
             {
               ...this.state.data2.datasets[1],
-              data : results_pa
+              data : y_pred_adjusted
             }
           ] 
         },
+        f1_pa : f1_pa,
+        f1_pw : f1_pw,
         fetch_data: true,
       })
 
@@ -904,7 +999,7 @@ class VerticalLayout extends PureComponent {
                           }}
                           // size="8px"
                           color="primary"
-                          onClick={this.fetchData}
+                          onClick={this.handleSubmit}
                         >
                           Submit
                         </Button>
@@ -921,19 +1016,22 @@ class VerticalLayout extends PureComponent {
             {this.state.fetch_data ? 
             <Row>
             <Col xl="6"  sm="12">
-           <LineChart
-           title = 'Results Using PW'
-            data = {this.state.data1}
-            warningColorShade={this.state.warningColorShade}
-            lineChartDanger={this.state.lineChartDanger}
-            lineChartPrimary={this.state.lineChartPrimary}
-            labelColor={this.state.labelColor}
-            tooltipShadow={this.state.tooltipShadow}
-            gridLineColor={this.state.gridLineColor}
-          />  
+            <LineChart
+            score = {this.state.f1_pw}
+            title = 'Results Using PW'
+              data = {this.state.data1}
+              warningColorShade={this.state.warningColorShade}
+              lineChartDanger={this.state.lineChartDanger}
+              lineChartPrimary={this.state.lineChartPrimary}
+              labelColor={this.state.labelColor}
+              tooltipShadow={this.state.tooltipShadow}
+              gridLineColor={this.state.gridLineColor}
+            />  
               </Col>
               <Col xl="6"  sm="12">
            <LineChart
+            score = {this.state.f1_pa}
+
             title = 'Results Using PA'
             data = {this.state.data2}
             warningColorShade={this.state.warningColorShade}
