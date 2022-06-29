@@ -18,7 +18,7 @@ class SidebarHeader extends Component {
         <ul className="nav navbar-nav flex-row">
           <li className="nav-item mr-auto">
             <NavLink to="/" className="navbar-brand">
-              <img src={Logo} style={{width:"100%",height:"100%"}} alt="PharmaYouLogo"  />
+              {/* <img src={Logo} style={{width:"100%",height:"100%"}} alt="PharmaYouLogo"  /> */}
               {/* <div className="brand-logo" /> */}
               {/* <h2 className="brand-text mb-0">Vuexy</h2> */}
             </NavLink>

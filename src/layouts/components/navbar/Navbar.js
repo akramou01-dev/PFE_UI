@@ -11,6 +11,10 @@ import NavbarUser from "./NavbarUser"
 import userImg from "../../../assets/img/portrait/small/avatar-s-11.jpg"
 import NavbarBookmarks from "./NavbarBookmarks"
 
+
+import ESI_LOGO from './ESI_LOGO.png'
+import LIAS_LOG from './LIAS8LOGO.png'
+
 const UserName = props => {
   let username = ""
   if (props.userdata !== undefined) {
@@ -39,7 +43,7 @@ const ThemeNavbar = props => {
       <div className="header-navbar-shadow" />
       <Navbar
         className={classnames(
-          "header-navbar navbar-expand-lg navbar navbar-with-menu navbar-shadow w-50",
+          "header-navbar navbar-expand-lg navbar navbar-with-menu navbar-shadow w-1",
           {
             "navbar-light": props.navbarColor === "default" || !colorsArr.includes(props.navbarColor),
             "navbar-dark": colorsArr.includes(props.navbarColor),
@@ -65,6 +69,9 @@ const ThemeNavbar = props => {
 
           }
         )}
+        style={{
+          height:"160px"
+        }}
       >
         <div className="navbar-wrapper">
           <div className="navbar-container content">
@@ -72,19 +79,50 @@ const ThemeNavbar = props => {
               className="navbar-collapse d-flex justify-content-between align-items-center"
               id="navbar-mobile"
             >
-              <div className="bookmark-wrapper">
+              {/* <div className="bookmark-wrapper">
                 <NavbarBookmarks
                   sidebarVisibility={props.sidebarVisibility}
                   handleAppOverlay={props.handleAppOverlay}
                 />
-              </div>
-              {props.horizontal ? (
+              </div> */}
+
+
+
+              <img src={LIAS_LOG} style={{
+                width:"180px",
+              paddingLeft:"1.5rem",
+              }}/>
+              
+              <h1 className='font-weight-bolder'>
+                PFE Demonstration Software
+              </h1>
+
+
+
+              <img src={ESI_LOGO} style={{
+                width:"150px",
+               paddingRight:"1.5rem",
+              }}/>
+              {/* <img src={ESI_LOGO} style={{
+                width:"150px",
+               marginLeft:"1.5rem",
+              }}/> */}
+              {/* {props.horizontal ? (
                 <div className="logo d-flex align-items-center">
                   <div className="brand-logo mr-50"></div>
                   <h2 className="text-primary brand-text mb-0">PharmaYou</h2>
                 </div>
-              ) : null}
-              <NavbarUser
+              ) : null} */}
+
+
+                
+
+                
+                {/* <div className="logo d-flex align-items-center"> */}
+                  {/* <div className="brand-logo mr-50">
+                  </div>
+                </div> */}
+              {/* <NavbarUser
                 handleAppOverlay={props.handleAppOverlay}
                 changeCurrentLang={props.changeCurrentLang}
                 userName={<UserName userdata={user} {...props} />}
@@ -104,7 +142,7 @@ const ThemeNavbar = props => {
                 }
                 logoutWithJWT={props.logoutWithJWT}
                 logoutWithFirebase={props.logoutWithFirebase}
-              />
+              /> */}
             </div>
           </div>
         </div>

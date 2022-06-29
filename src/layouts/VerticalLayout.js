@@ -22,7 +22,7 @@ import Papa from 'papaparse';
 import LineChart from   '../views/charts/chart-js/ChartJsLineChart'
 
 
-import { Input, Button, CustomInput } from "reactstrap";
+import { Input, Button, CustomInput, Spinner  } from "reactstrap";
 
 import { Truck, User, FileText, DollarSign, Eye } from "react-feather";
 
@@ -36,6 +36,7 @@ import {
   hideScrollToTop,
 } from "../redux/actions/customizer/index";
 import { data } from "jquery";
+import { ThermometerSnow } from "react-bootstrap-icons";
 
 
 const Xs = []
@@ -133,18 +134,19 @@ class VerticalLayout extends PureComponent {
     dataset: "SMAP",
     datasets: ["SMAP",'ECG','MSLF7',"MSLC1","Genesis","HSS"],
     scos_params: {
-      beta: "",
-      lambda: "",
-      decay: "",
-      w: "",
-      th_pa: "",
-      th_pw: "",  
+      beta: null,
+      lambda: null,
+      decay: null,
+      w: null,
+      dim: null
     },
     scos_config : {
       convex:false, 
       temp_depend :'TD', 
       win : true,
     },
+    th_pa: null,
+    th_pw: null,  
     find_threshold : false,
     labelColor : '#6e6b7b',
     
@@ -288,7 +290,8 @@ class VerticalLayout extends PureComponent {
     errorText : "Network problem",
 
     f1_pa: null, 
-    f1_pw:null
+    f1_pw:null,
+    fetching_data : false,
 
 
   };
@@ -550,17 +553,27 @@ class VerticalLayout extends PureComponent {
 
   handleSubmit = async () =>{
     try {
+      this.setState({
+        ...this.state, 
+        fetching_data: true,
+      })
       let response = null
       if (this.state.algorithm=="USAD"){
         response = await axios.post(`/usad`, {
           dataset_name : this.state.dataset,
-          find_threshold: this.state.find_threshold
+          find_threshold: this.state.find_threshold,
+          th_pa : this.state.th_pa,
+          th_pw : this.state.th_pw,
         });
       }else if (this.state.algorithm=="CNN Outlier"){
         response = await axios.post(`/cnn`,{
           dataset_name : this.state.dataset,
-          find_threshold: this.state.find_threshold
+          find_threshold: this.state.find_threshold,
+          th_pa : this.state.th_pa,
+          th_pw : this.state.th_pw,
         });
+
+
       } else {
         response = await axios.post(`/scos`, {
           config: {
@@ -568,8 +581,17 @@ class VerticalLayout extends PureComponent {
             dependence : this.state.scos_config.temp_depend, 
             convex:  this.state.scos_config.convex ? "convex" : "non-convex"
           }, 
-          params : {}, 
-          find_threshold : this.state.find_threshold
+          params : {
+            beta : this.state.scos_params.beta,
+            lambda : this.state.scos_params.lambda, 
+            decay : this.state.scos_params.decay, 
+            pulsation: this.state.scos_params.w,
+            dim: this.state.scos_params.dim
+          }, 
+          find_threshold : this.state.find_threshold, 
+          th_pa : this.state.th_pa,
+          th_pw : this.state.th_pw,
+
         });
       }
 
@@ -623,6 +645,7 @@ class VerticalLayout extends PureComponent {
         f1_pa : f1_pa,
         f1_pw : f1_pw,
         fetch_data: true,
+        fetching_data: false,
       })
 
     } catch (err) {
@@ -631,11 +654,14 @@ class VerticalLayout extends PureComponent {
           ? "Une erreur s'est produite."
           : "Vérifiez votre connexion !";
       this.handleAlert("errorAlert", true, error_message);
+      this.setState({
+        ...this.state,
+        fetching_data: false,
+      })
     }
   }
 
   render() {
-    console.log(this.state.data)
     let appProps = this.props.app.customizer;
     let menuThemeArr = [
       "primary",
@@ -679,9 +705,9 @@ class VerticalLayout extends PureComponent {
       handleAppOverlay: this.handleAppOverlay,
       appOverlayState: this.state.appOverlay,
       navbarColor: appProps.navbarColor,
-      navbarType: appProps.navbarType,
+      navbarType: "floating",
     };
-
+    console.log(appProps.navbarType)
     let footerProps = {
       footerType: appProps.footerType,
       hideScrollToTop: appProps.hideScrollToTop,
@@ -729,11 +755,13 @@ class VerticalLayout extends PureComponent {
           })}
           onClick={this.handleAppOverlayClick}
         >
-          {/* <Navbar {...navbarProps} /> */}
+          <Navbar {...navbarProps} />
           <div className="content-wrapper">
             {/* ADDED CODE */}
 
-            <Row>
+            <Row style={{
+              marginTop:"7%"
+            }}>
               <div
                 className="d-flex flex-sm-row justify-content-center"
                 style={{
@@ -945,6 +973,27 @@ class VerticalLayout extends PureComponent {
                     </div>
                     <div className="d-flex flex-sm-row justify-content-between align-items-center">
                       <div>
+                        <small>Dim</small>
+                        <Input
+                          style={{
+                            width: "5rem",
+                            height: "2rem",
+                          }}
+                          value={this.state.scos_params.dim}
+                          onChange={(e) => {
+                            this.setState({
+                              scos_params: {
+                                ...this.state.scos_params,
+                                dim: e.target.value,
+                              }
+                            });
+                          }}
+                          disabled={this.state.algorithm != "SCOS"}
+                        />
+                      </div>
+                    </div>
+                    <div className="d-flex flex-sm-row justify-content-between align-items-center">
+                      <div>
                         <small>Threshold PA</small>
                         <Input
                           style={{
@@ -954,13 +1003,10 @@ class VerticalLayout extends PureComponent {
                           value={this.state.scos_params.th_pa}
                           onChange={(e) => {
                             this.setState({
-                              scos_params: {
-                                ...this.state.scos_params,
-                                th_pa: e.target.value,
-                              }
+                              ...this.state,
+                              th_pa: e.target.value,
                             });
                           }}
-                          disabled={this.state.algorithm != "SCOS"}
                         />
                       </div>
                     </div>
@@ -975,13 +1021,10 @@ class VerticalLayout extends PureComponent {
                           value={this.state.scos_params.th_pw}
                           onChange={(e) => {
                             this.setState({
-                              scos_params: {
-                                ...this.state.scos_params,
-                                th_pw: e.target.value,
-                              }
+                              ...this.state,
+                              th_pw: e.target.value,
                             });
                           }}
-                          disabled={this.state.algorithm != "SCOS"}
                         />
                       </div>
                     </div>
@@ -1001,7 +1044,13 @@ class VerticalLayout extends PureComponent {
                           color="primary"
                           onClick={this.handleSubmit}
                         >
-                          Submit
+                          {! this.state.fetching_data ? 
+                          "Submit" : 
+                          <div>
+                            <Spinner color='white' size='sm' />
+                            <span className='ml-50'>Loading...</span>
+                          </div>
+                        }
                         </Button>
                       </div>
                     </div>
@@ -1067,7 +1116,7 @@ class VerticalLayout extends PureComponent {
             </div>
             </div>
 
-        <Footer {...footerProps} />
+        {/* <Footer {...footerProps} /> */}
         {appProps.disableCustomizer !== true ? (
           <Customizer {...customizerProps} />
         ) : null}

@@ -113,7 +113,7 @@ const ChartjsLineChart = ({
             <CardTitle className='mb-75' tag='h4'>
                 {title}
             </CardTitle>
-            {score? `F1-Score : ${score}` : "" }
+            {score != null ? `F1-Score : ${score}` : "" }
             
             </div>
         </CardHeader>
