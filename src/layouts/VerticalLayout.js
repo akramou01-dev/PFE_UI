@@ -62,8 +62,7 @@ for (let i = 0; i < 8028; i++) {
   }
 }
 
-console.log(real_labels)
-console.log(Xs)
+
 
 
 // const Xs = []
@@ -606,48 +605,86 @@ class VerticalLayout extends PureComponent {
         new_threshold_pa, 
         new_threshold_pw,
         y_pred,
-        y_pred_adjusted
+        y_pred_adjusted,
+        labels
       } = response.data
-      
+
       var Xs = [];
       for (var i = 0; i <= y_pred.length ; i++) {
         Xs.push(i);
       }
-
-      this.setState({
-        ...this.state,
-        data1 : {
-          labels : Xs,
-          datasets  : [
-            {
-              ...this.state.data1.datasets[0],
-              data : this.state.labels[this.state.dataset] [0]
-            },
-            {
-              ...this.state.data1.datasets[1],
-              data : y_pred 
-            }
-          ] 
-        },
-        data2 : {
-          labels : Xs,
-          datasets  : [
-            {
-              ...this.state.data2.datasets[0],
-              data : this.state.labels[this.state.dataset][0]
-            },
-            {
-              ...this.state.data2.datasets[1],
-              data : y_pred_adjusted
-            }
-          ] 
-        },
-        f1_pa : f1_pa,
-        f1_pw : f1_pw,
-        fetch_data: true,
-        fetching_data: false,
-      })
-
+      
+      if (labels){
+        this.setState({
+          ...this.state,
+          data1 : {
+            labels : Xs,
+            datasets  : [
+              {
+                ...this.state.data1.datasets[0],
+                data : labels
+              },
+              {
+                ...this.state.data1.datasets[1],
+                data : y_pred 
+              }
+            ] 
+          },
+          data2 : {
+            labels : Xs,
+            datasets  : [
+              {
+                ...this.state.data2.datasets[0],
+                data : labels
+              },
+              {
+                ...this.state.data2.datasets[1],
+                data : y_pred_adjusted
+              }
+            ] 
+          },
+          f1_pa : f1_pa,
+          f1_pw : f1_pw,
+          fetch_data: true,
+          fetching_data: false,
+        })
+        
+      }else {
+        this.setState({
+          ...this.state,
+          data1 : {
+            labels : Xs,
+            datasets  : [
+              {
+                ...this.state.data1.datasets[0],
+                data : this.state.labels[this.state.dataset] [0]
+              },
+              {
+                ...this.state.data1.datasets[1],
+                data : y_pred 
+              }
+            ] 
+          },
+          data2 : {
+            labels : Xs,
+            datasets  : [
+              {
+                ...this.state.data2.datasets[0],
+                data : this.state.labels[this.state.dataset][0]
+              },
+              {
+                ...this.state.data2.datasets[1],
+                data : y_pred_adjusted
+              }
+            ] 
+          },
+          f1_pa : f1_pa,
+          f1_pw : f1_pw,
+          fetch_data: true,
+          fetching_data: false,
+        })
+      }
+      
     } catch (err) {
       const error_message =
         err.message === "Network Error"
@@ -707,7 +744,6 @@ class VerticalLayout extends PureComponent {
       navbarColor: appProps.navbarColor,
       navbarType: "floating",
     };
-    console.log(appProps.navbarType)
     let footerProps = {
       footerType: appProps.footerType,
       hideScrollToTop: appProps.hideScrollToTop,
@@ -878,8 +914,8 @@ class VerticalLayout extends PureComponent {
                   </h5>
                   <div
                     style={{
-                      marginTop: "2rem",
-                      overflowX: "scroll",
+                      marginTop: "3.5rem",
+                      // overflowX: "scroll",
                     }}
                     className="d-flex flex-sm-row justify-content-between align-items-center scroll-hide"
                   >
@@ -1043,6 +1079,8 @@ class VerticalLayout extends PureComponent {
                           // size="8px"
                           color="primary"
                           onClick={this.handleSubmit}
+
+                          disabled= {this.state.fetching_data}
                         >
                           {! this.state.fetching_data ? 
                           "Submit" : 
